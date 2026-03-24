@@ -1,0 +1,2296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PK Fronter">
+<meta name="theme-color" content="#22252b">
+<title>PK Fronter</title>
+<link id="favicon" rel="icon" type="image/png" href="">
+<link id="apple-touch-icon" rel="apple-touch-icon" href="">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  :root {
+    --bg: #1a1c20;
+    --surface: #22252b;
+    --surface2: #2a2e37;
+    --border: #333740;
+    --text: #e8eaf0;
+    --muted: #9399a8;            /* 4.77:1 on surface2 (WCAG AA) */
+    --accent: #7c6fff;           /* decorative: borders, outlines, switch tracks */
+    --accent-text: #9b8aff;      /* text on dark surfaces: 4.84:1 on surface2 */
+    --accent-bg: #6558d3;        /* background for white text: 5.40:1 */
+    --fronting: #4ade80;
+    --radius: 14px;
+    --font: 'Nunito', system-ui, sans-serif;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+    overscroll-behavior: none;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  header .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #7c6fff 0%, #a78bfa 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #setup {
+    max-width: 440px;
+    margin: 80px auto;
+    padding: 0 20px;
+  }
+
+  .setup-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+  }
+
+  .setup-card h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .setup-card p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .setup-card code {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-family: monospace;
+    font-size: 13px;
+    color: #a78bfa;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .field input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .field input:focus {
+    border-color: var(--accent);
+  }
+
+  /* Keyboard-only focus ring for all interactive elements */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent-bg);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .btn-primary:hover {
+    opacity: 0.88;
+  }
+
+  .err {
+    font-size: 13px;
+    color: #f87171;
+    min-height: 0;
+  }
+
+  .err:not(:empty) {
+    margin-top: 10px;
+  }
+
+  .btn-secondary {
+    padding: 8px 14px;
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent-text);
+  }
+
+  .import-section {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .import-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .import-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .import-row input {
+    flex: 1;
+    min-width: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .import-row input:focus {
+    border-color: var(--accent);
+  }
+
+  .import-row input::placeholder {
+    color: var(--muted);
+  }
+
+  .header-btn {
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 10px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: var(--font);
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+
+  .header-btn:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  #app {
+    display: none;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 18px 20px 8px;
+  }
+
+  .member-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 16px 13px 0;
+    margin: 0 16px 6px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    border-left-width: 4px;
+    transition: border-color 0.2s, background 0.15s;
+    overflow: hidden;
+  }
+
+  .member-card:hover {
+    background: var(--surface2);
+  }
+
+  #member-list ul {
+    list-style: none;
+  }
+
+  .member-card.fronting {
+    border-left-color: var(--fronting);
+  }
+
+  .member-card.not-fronting {
+    border-left-color: var(--border);
+  }
+
+  .avatar-wrap {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    margin-left: 14px;
+  }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .avatar-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .member-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .member-name {
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .member-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .front-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: rgba(74, 222, 128, 0.15);
+    color: #4ade80;
+    display: none;
+  }
+
+  .member-card.fronting .front-badge {
+    display: block;
+  }
+
+  .toggle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 20px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+    padding: 0;
+    margin-right: 12px;
+  }
+
+  .toggle-btn:hover {
+    background: var(--border);
+    color: var(--text);
+  }
+
+  .member-card.fronting .toggle-btn {
+    background: rgba(74, 222, 128, 0.15);
+    border-color: rgba(74, 222, 128, 0.4);
+    color: #4ade80;
+  }
+
+  .toggle-btn.loading {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .member-settings-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
+    flex-shrink: 0;
+    padding: 0;
+    opacity: 0.4;
+    position: relative;
+  }
+
+  .member-settings-btn:hover,
+  .member-settings-btn:focus-visible {
+    background: var(--surface2);
+    border-color: var(--border);
+    opacity: 1;
+  }
+
+  /* Dot indicator when any webhook is muted for this member */
+  .member-settings-btn.has-mutes::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--fronting);
+  }
+
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 50;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 80px 16px 16px;
+    overflow-y: auto;
+  }
+
+  .overlay.open {
+    display: flex;
+  }
+
+  .member-webhook-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 4px;
+  }
+
+  .member-webhook-row + .member-webhook-row {
+    border-top: 1px solid var(--border);
+  }
+
+  .member-webhook-row-label {
+    font-size: 14px;
+    font-weight: 600;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 12px;
+  }
+
+  .modal-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  #status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 20px;
+    padding-bottom: calc(10px + var(--safe-bottom));
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  #status-bar .fronting-count {
+    color: var(--fronting);
+    font-weight: 700;
+  }
+
+  .logout-btn {
+    font-size: 12px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    text-decoration: underline;
+  }
+
+  .logout-btn:hover,
+  .logout-btn:focus-visible {
+    color: var(--text);
+  }
+
+  .search-wrap {
+    padding: 12px 16px 4px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 14px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-wrap input:focus {
+    border-color: var(--accent);
+  }
+
+  .search-wrap input::placeholder {
+    color: var(--muted);
+  }
+
+  #loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 80px 20px;
+  }
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* Visually hidden but accessible to screen readers */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Skip link: invisible until focused, then overlays top-left */
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 16px;
+    z-index: 100;
+    padding: 8px 16px;
+    background: var(--accent-bg);
+    color: #fff;
+    border-radius: 8px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .skip-link:focus {
+    top: calc(8px + env(safe-area-inset-top, 0px));
+  }
+
+  #toast {
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 100;
+  }
+
+  #toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  #toast.error {
+    color: #f87171;
+    border-color: rgba(248, 113, 113, 0.3);
+  }
+
+  #toast.success {
+    color: #4ade80;
+    border-color: rgba(74, 222, 128, 0.3);
+  }
+
+  .bottom-safe-area {
+    padding-bottom: calc(52px + var(--safe-bottom));
+  }
+
+  .webhook-btn {
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 10px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: var(--font);
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+
+  .webhook-btn:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .webhook-btn.active {
+    color: var(--accent-text);
+    border-color: var(--accent-text);
+  }
+
+  .webhook-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    width: 100%;
+    max-width: 520px;
+  }
+
+  .webhook-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .webhook-modal-header h2 {
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-close:hover {
+    color: var(--text);
+  }
+
+  .webhook-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+  }
+
+  .webhook-toggle-label span {
+    font-size: 14px;
+    font-weight: 600;
+    display: block;
+  }
+
+  .webhook-toggle-label small {
+    font-size: 12px;
+    color: var(--muted);
+    display: block;
+    margin-top: 2px;
+  }
+
+  .switch {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .switch-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 13px;
+    background: var(--border);
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+  .switch-track::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.2s;
+  }
+
+  .switch input:checked + .switch-track {
+    background: var(--accent);
+  }
+
+  .switch input:checked + .switch-track::after {
+    transform: translateX(18px);
+  }
+
+  .webhook-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+    min-height: 0;
+  }
+
+  .webhook-row, .webhook-new-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wh-label-input {
+    width: 88px;
+    flex-shrink: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .wh-label-input::placeholder {
+    color: var(--muted);
+  }
+
+  .wh-label-input:focus {
+    border-color: var(--accent);
+  }
+
+  .wh-url-input {
+    flex: 1;
+    min-width: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .wh-url-input::placeholder {
+    color: var(--muted);
+  }
+
+  .wh-url-input:focus {
+    border-color: var(--accent);
+  }
+
+  .wh-icon-btn {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, border-color 0.15s;
+    padding: 0;
+    font-family: var(--font);
+  }
+
+  .wh-icon-btn.add:hover {
+    color: var(--accent-text);
+    border-color: var(--accent-text);
+  }
+
+  .wh-icon-btn.del:hover {
+    color: #f87171;
+    border-color: #f87171;
+  }
+
+  .switch-sm {
+    position: relative;
+    width: 36px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .switch-sm input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .switch-sm-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 11px;
+    background: var(--border);
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+  .switch-sm-track::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.2s;
+  }
+
+  .switch-sm input:checked + .switch-sm-track {
+    background: #4ade80;
+  }
+
+  .switch-sm input:checked + .switch-sm-track::after {
+    transform: translateX(14px);
+  }
+
+  #setup-logo {
+    margin-bottom: 16px;
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+  }
+
+  .loading-text {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  #splash {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .splash-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .splash-logo {
+    width: 56px;
+    height: 56px;
+    font-size: 28px;
+    border-radius: 14px;
+  }
+
+  .splash-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .webhook-new-spacer {
+    width: 36px;
+    flex-shrink: 0;
+  }
+
+  .status-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+  }
+
+  .system-id-label {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .webhook-empty {
+    font-size: 13px;
+    color: var(--muted);
+    padding: 4px 0;
+  }
+
+  @media (min-width: 640px) {
+    .webhook-modal { max-width: 920px; }
+    .wh-label-input { width: 220px; min-width: 220px; }
+    .wh-url-input { min-width: 280px; }
+  }
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to content</a>
+
+<div id="setup" role="main" style="display: none;">
+  <div class="setup-card">
+    <div class="logo" id="setup-logo" aria-hidden="true">🐙</div>
+    <h1>PK Fronter</h1>
+    <p>Connect to your PluralKit system to track fronting. Get your token by running <code>pk;token</code> in Discord.</p>
+    <div class="field">
+      <label for="token-input">System Token</label>
+      <input type="password" id="token-input" placeholder="Paste your PluralKit token…" autocomplete="off">
+    </div>
+    <button class="btn-primary" id="connect-btn">Connect</button>
+    <p class="err" id="setup-err" aria-live="assertive" aria-atomic="true"></p>
+
+    <div class="import-section">
+      <p class="import-desc">Have settings from another device? Paste an export code to restore your token, webhooks, and preferences.</p>
+      <div class="import-row">
+        <input type="text" id="import-input" placeholder="Paste export code…" autocomplete="off" aria-label="Import code">
+        <button class="btn-secondary" id="import-btn">Import</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="splash" role="status" style="display: none;">
+  <div class="splash-content">
+    <div class="logo splash-logo" id="splash-logo" aria-hidden="true">🐙</div>
+    <div class="splash-title" id="splash-title">PK Fronter</div>
+    <div class="spinner" aria-hidden="true"></div>
+    <span class="loading-text">Connecting…</span>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="logo" id="header-logo" aria-hidden="true">🐙</div>
+    <div>
+      <h1>PK Fronter</h1>
+      <div class="subtitle" id="system-name">Loading…</div>
+    </div>
+    <div class="header-right">
+      <button class="header-btn" id="export-btn" aria-label="Export settings">Export</button>
+      <button class="webhook-btn" id="webhook-btn" aria-haspopup="dialog" aria-expanded="false">Webhooks</button>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <div class="search-wrap">
+      <input type="search" id="search" placeholder="Search members…" aria-label="Search members">
+    </div>
+
+    <div id="loading" role="status">
+      <div class="spinner" aria-hidden="true"></div>
+      <span class="loading-text">Loading members…</span>
+    </div>
+
+    <div id="member-list" class="bottom-safe-area"></div>
+    <div id="search-results-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+  </main>
+</div>
+
+<div id="webhook-overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="webhook-modal-title">
+  <div class="webhook-modal">
+    <div class="webhook-modal-header">
+      <h2 id="webhook-modal-title">Discord Webhooks</h2>
+      <button class="modal-close" id="webhook-close" aria-label="Close">×</button>
+    </div>
+
+    <div class="webhook-toggle-row">
+      <div class="webhook-toggle-label">
+        <span id="webhook-enabled-label">Enable webhooks</span>
+        <small id="webhook-enabled-desc">Send a message when fronting changes</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="webhook-enabled" aria-labelledby="webhook-enabled-label" aria-describedby="webhook-enabled-desc">
+        <div class="switch-track"></div>
+      </label>
+    </div>
+
+    <div class="webhook-list" id="webhook-list"></div>
+
+    <div class="webhook-new-row">
+      <div class="webhook-new-spacer"></div>
+      <input class="wh-label-input" id="new-wh-label" placeholder="Name" maxlength="32" aria-label="New webhook name">
+      <input class="wh-url-input" id="new-wh-url" placeholder="https://discord.com/api/webhooks/…" aria-label="New webhook URL">
+      <button class="wh-icon-btn add" id="new-wh-add" title="Add webhook" aria-label="Add webhook">+</button>
+    </div>
+  </div>
+</div>
+
+<div id="member-settings-overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="member-settings-title">
+  <div class="webhook-modal">
+    <div class="webhook-modal-header">
+      <h2 id="member-settings-title">Webhook Settings</h2>
+      <button class="modal-close" id="member-settings-close" aria-label="Close">×</button>
+    </div>
+
+    <p id="member-settings-desc" class="modal-desc">Choose which webhooks fire when this member's fronting changes.</p>
+
+    <div id="member-settings-list"></div>
+  </div>
+</div>
+
+<footer id="status-bar" style="display:none;">
+  <span aria-live="polite" aria-atomic="true">
+    <span class="fronting-count" id="front-count">0</span> currently fronting
+  </span>
+  <span class="status-bar-right">
+    <span class="system-id-label">System ID: <span id="system-id-tag">—</span></span>
+    <button class="logout-btn" id="logout-btn">Sign out</button>
+  </span>
+</footer>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+
+/* =========================================================================
+ *  PWA SETUP
+ *  Generates a web app manifest and registers a minimal service worker from
+ *  blob URLs so the app can be installed from a single HTML file.
+ * ========================================================================= */
+
+(function setupPwaManifest() {
+  const manifest = {
+    name: 'PK Fronter',
+    short_name: 'PK Fronter',
+    description: 'Track fronting for your PluralKit system',
+    start_url: './',
+    display: 'standalone',
+    background_color: '#1a1c20',
+    theme_color: '#22252b',
+    orientation: 'portrait-primary',
+    icons: [
+      { src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%237c6fff"/><text y=".9em" font-size="80" x="10">🐙</text></svg>', sizes: 'any', type: 'image/svg+xml' }
+    ]
+  };
+  window.pwaManifest = manifest;
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  window.pwaManifestUrl = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = window.pwaManifestUrl;
+  document.head.appendChild(link);
+})();
+
+/* Register a pass-through service worker so the PWA install prompt works. */
+if ('serviceWorker' in navigator) {
+  const serviceWorkerSource = `
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', e => e.waitUntil(
+  caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
+    .then(() => self.clients.claim())
+));
+self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
+  `;
+  const blob = new Blob([serviceWorkerSource], { type: 'application/javascript' });
+  const blobUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(blobUrl)
+    .then(() => URL.revokeObjectURL(blobUrl))
+    .catch(() => {});
+}
+
+/* =========================================================================
+ *  CONSTANTS & CONFIGURATION
+ * ========================================================================= */
+
+const PK_API_BASE = 'https://api.pluralkit.me/v2';
+const TOAST_DURATION_MS = 2800;
+const SEARCH_DEBOUNCE_MS = 150;
+const POLLING_INTERVAL_MS = 30000;
+const DISCORD_USERNAME_MAX_LENGTH = 80;
+const DISCORD_WEBHOOK_PREFIXES = [
+  'https://discord.com/api/webhooks/',
+  'https://discordapp.com/api/webhooks/',
+];
+
+/** LocalStorage keys — centralized to avoid typo bugs. */
+const STORAGE_KEYS = {
+  token: 'pk_token',
+  webhooks: 'pk_webhooks',
+  webhooksEnabled: 'pk_webhooks_enabled',
+  memberWebhookSettings: 'pk_member_webhook_mutes',
+};
+
+const CACHE_KEYS = {
+  systemAvatarUrl: 'pk_system_avatar_url',
+  systemName: 'pk_system_name',
+};
+
+/* =========================================================================
+ *  MUTABLE STATE
+ * ========================================================================= */
+
+let apiToken = '';
+let members = [];
+let fronters = new Set();
+let systemInfo = null;
+let isRefreshing = false;
+let webhooks = JSON.parse(localStorage.getItem(STORAGE_KEYS.webhooks) || '[]')
+  .map(webhook => ({ enabled: true, ...webhook }));
+let webhooksEnabled = localStorage.getItem(STORAGE_KEYS.webhooksEnabled) === 'true';
+
+/**
+ * Per-member webhook settings: { memberUuid: { webhookUrl: boolean, ... }, ... }
+ * true = enabled (send), false = muted (skip). Missing entries default to true.
+ */
+let memberWebhookSettings = deserializeMemberWebhookSettings(
+  JSON.parse(localStorage.getItem(STORAGE_KEYS.memberWebhookSettings) || '{}')
+);
+
+let memberSettingsActiveMemberId = null;
+let memberSettingsTriggerBtn = null;
+
+/* =========================================================================
+ *  CACHED DOM REFERENCES
+ * ========================================================================= */
+
+const setupEl = document.getElementById('setup');
+const splashEl = document.getElementById('splash');
+const appEl = document.getElementById('app');
+const loadingEl = document.getElementById('loading');
+const statusBarEl = document.getElementById('status-bar');
+const toastEl = document.getElementById('toast');
+const searchInput = document.getElementById('search');
+const memberListEl = document.getElementById('member-list');
+const frontCountEl = document.getElementById('front-count');
+const systemNameEl = document.getElementById('system-name');
+const systemIdTagEl = document.getElementById('system-id-tag');
+const headerLogoEl = document.getElementById('header-logo');
+const setupLogoEl = document.getElementById('setup-logo');
+const faviconEl = document.getElementById('favicon');
+const appleTouchIconEl = document.getElementById('apple-touch-icon');
+const tokenInput = document.getElementById('token-input');
+const connectBtn = document.getElementById('connect-btn');
+const setupErrEl = document.getElementById('setup-err');
+const logoutBtn = document.getElementById('logout-btn');
+const webhookBtn = document.getElementById('webhook-btn');
+const webhookOverlay = document.getElementById('webhook-overlay');
+const webhookCloseBtn = document.getElementById('webhook-close');
+const webhookEnabledCheckbox = document.getElementById('webhook-enabled');
+const webhookListEl = document.getElementById('webhook-list');
+const newWebhookLabelInput = document.getElementById('new-wh-label');
+const newWebhookUrlInput = document.getElementById('new-wh-url');
+const newWebhookAddBtn = document.getElementById('new-wh-add');
+const searchResultsStatusEl = document.getElementById('search-results-status');
+const exportBtn = document.getElementById('export-btn');
+const importBtn = document.getElementById('import-btn');
+const importInput = document.getElementById('import-input');
+const memberSettingsOverlay = document.getElementById('member-settings-overlay');
+const memberSettingsCloseBtn = document.getElementById('member-settings-close');
+const memberSettingsTitleEl = document.getElementById('member-settings-title');
+const memberSettingsListEl = document.getElementById('member-settings-list');
+
+/* =========================================================================
+ *  UTILITY FUNCTIONS
+ * ========================================================================= */
+
+function escapeHtml(str) {
+  return (str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
+ * Returns the WCAG 2.1 relative luminance of a hex color.
+ * Used for runtime contrast checking of PluralKit member colors.
+ */
+function relativeLuminance(hexColor) {
+  const hex = hexColor.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16) / 255;
+  const g = parseInt(hex.substring(2, 4), 16) / 255;
+  const b = parseInt(hex.substring(4, 6), 16) / 255;
+  const toLinear = (c) => c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+}
+
+/** WCAG AA minimum contrast ratio for normal text. */
+const WCAG_AA_CONTRAST_RATIO = 4.5;
+
+/**
+ * Returns true if foreground text on the given background meets WCAG AA (4.5:1).
+ * Both arguments must be 6-digit hex strings (with or without '#').
+ */
+function meetsContrastAA(foreground, background) {
+  const lum1 = relativeLuminance(foreground);
+  const lum2 = relativeLuminance(background);
+  const lighter = Math.max(lum1, lum2);
+  const darker = Math.min(lum1, lum2);
+  return (lighter + 0.05) / (darker + 0.05) >= WCAG_AA_CONTRAST_RATIO;
+}
+
+/** The card background color, used for contrast checks against member colors. */
+const CARD_BACKGROUND = '#22252b'; // must match --surface
+
+let toastTimer = null;
+
+function showToast(message, type) {
+  toastEl.textContent = message;
+  toastEl.className = ['show', type].filter(Boolean).join(' ');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toastEl.className = ''; }, TOAST_DURATION_MS);
+}
+
+/** Returns a display name for a member, preferring display_name over name. */
+function getMemberDisplayName(member) {
+  return member.display_name || member.name;
+}
+
+/**
+ * Extracts an array of fronting member UUIDs from a PluralKit switch response.
+ * Handles both full member objects and bare UUID strings.
+ */
+function extractFronterUuids(switchData) {
+  return (switchData?.members || []).map(m => m.uuid || m);
+}
+
+/** Returns true if the given URL matches a known Discord webhook endpoint. */
+function isValidDiscordWebhookUrl(url) {
+  return DISCORD_WEBHOOK_PREFIXES.some(prefix => url.startsWith(prefix));
+}
+
+function getActiveWebhooks() {
+  return webhooks.filter(webhook => webhook.url && webhook.enabled);
+}
+
+function deserializeMemberWebhookSettings(serialized) {
+  const result = {};
+  for (const [memberId, indexMap] of Object.entries(serialized)) {
+    const urlMap = {};
+    for (const [indexStr, enabled] of Object.entries(indexMap)) {
+      const idx = parseInt(indexStr, 10);
+      if (idx >= 0 && idx < webhooks.length && webhooks[idx].url) {
+        urlMap[webhooks[idx].url] = enabled;
+      }
+    }
+    if (Object.keys(urlMap).length > 0) {
+      result[memberId] = urlMap;
+    }
+  }
+  return result;
+}
+
+function serializeMemberWebhookSettings() {
+  const serialized = {};
+  for (const [memberId, urlMap] of Object.entries(memberWebhookSettings)) {
+    const indexMap = {};
+    let hasAnyFalse = false;
+    for (const [url, enabled] of Object.entries(urlMap)) {
+      const idx = webhooks.findIndex(w => w.url === url);
+      if (idx !== -1) {
+        indexMap[String(idx)] = enabled;
+        if (!enabled) hasAnyFalse = true;
+      }
+    }
+    if (hasAnyFalse) {
+      serialized[memberId] = indexMap;
+    }
+  }
+  return serialized;
+}
+
+function saveMemberWebhookSettings() {
+  localStorage.setItem(
+    STORAGE_KEYS.memberWebhookSettings,
+    JSON.stringify(serializeMemberWebhookSettings())
+  );
+}
+
+function isMemberWebhookEnabled(memberId, webhookUrl) {
+  const settings = memberWebhookSettings[memberId];
+  if (!settings || settings[webhookUrl] === undefined) return true;
+  return settings[webhookUrl];
+}
+
+function setMemberWebhookEnabled(memberId, webhookUrl, enabled) {
+  if (!memberWebhookSettings[memberId]) {
+    memberWebhookSettings[memberId] = {};
+  }
+  memberWebhookSettings[memberId][webhookUrl] = enabled;
+
+  const allTrue = Object.values(memberWebhookSettings[memberId]).every(v => v === true);
+  if (allTrue) {
+    delete memberWebhookSettings[memberId];
+  }
+
+  saveMemberWebhookSettings();
+}
+
+function hasMutedWebhooks(memberId) {
+  const settings = memberWebhookSettings[memberId];
+  if (!settings) return false;
+  return Object.values(settings).some(v => v === false);
+}
+
+/**
+ * Sort comparator for members by display name.
+ * Used when loading or refreshing the member list.
+ */
+function compareMembersByName(a, b) {
+  return getMemberDisplayName(a).localeCompare(getMemberDisplayName(b));
+}
+
+/** Simple search debounce helper. */
+function debounce(fn, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
+/**
+ * Returns all focusable elements inside a container, in DOM order.
+ * Used for focus-trapping inside the webhook modal.
+ */
+function getFocusableElements(container) {
+  return [...container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  )].filter(el => !el.disabled && el.offsetParent !== null);
+}
+
+/* =========================================================================
+ *  PLURALKIT API
+ * ========================================================================= */
+
+async function pkApiFetch(path, opts = {}) {
+  const response = await fetch(PK_API_BASE + path, {
+    ...opts,
+    headers: {
+      'Authorization': apiToken,
+      'Content-Type': 'application/json',
+      ...(opts.headers || {}),
+    }
+  });
+  if (response.status === 204) return null;
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    throw new Error(errorBody.message || `HTTP ${response.status}`);
+  }
+  return response.json();
+}
+
+/* =========================================================================
+ *  SYSTEM AVATAR
+ * ========================================================================= */
+
+function setSystemAvatar(avatarUrl) {
+  if (!avatarUrl) return;
+
+  // Build image elements safely (no innerHTML) to avoid XSS from malformed URLs.
+  // Preserves aria-hidden since logos are decorative.
+  const applyLogoImage = (logoEl) => {
+    const img = document.createElement('img');
+    img.src = avatarUrl;
+    img.alt = '';
+    img.onerror = () => { logoEl.textContent = '🐙'; };
+    logoEl.textContent = '';
+    logoEl.appendChild(img);
+  };
+
+  applyLogoImage(headerLogoEl);
+  applyLogoImage(setupLogoEl);
+
+  faviconEl.href = avatarUrl;
+  appleTouchIconEl.href = avatarUrl;
+
+  if (window.pwaManifest) {
+    window.pwaManifest.icons = [
+      { src: avatarUrl, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: avatarUrl, sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+    ];
+    const blob = new Blob([JSON.stringify(window.pwaManifest)], { type: 'application/json' });
+    const newUrl = URL.createObjectURL(blob);
+    document.querySelector('link[rel="manifest"]').href = newUrl;
+    if (window.pwaManifestUrl) URL.revokeObjectURL(window.pwaManifestUrl);
+    window.pwaManifestUrl = newUrl;
+  }
+}
+
+/* =========================================================================
+ *  DOM RENDERING
+ * ========================================================================= */
+
+function updateFrontingCount() {
+  frontCountEl.textContent = fronters.size;
+}
+
+function createAvatarPlaceholder(name, color) {
+  const placeholder = document.createElement('div');
+  placeholder.className = 'avatar-placeholder';
+  placeholder.setAttribute('aria-hidden', 'true');
+  placeholder.textContent = (name || '?')[0].toUpperCase();
+  if (color) {
+    // PK colors are always 6-digit hex; append alpha channel for tinting.
+    placeholder.style.background = color + '22';
+    placeholder.style.color = color;
+    placeholder.style.border = `1px solid ${color}44`;
+  }
+  return placeholder;
+}
+
+function createMemberCard(member) {
+  const isFronting = fronters.has(member.uuid);
+  const name = getMemberDisplayName(member);
+  const color = member.color ? '#' + member.color : null;
+  const textColor = (color && meetsContrastAA(color, CARD_BACKGROUND)) ? color : null;
+  const nameId = `name-${member.id}`;
+  const subId = `sub-${member.id}`;
+
+  const card = document.createElement('li');
+  card.className = 'member-card ' + (isFronting ? 'fronting' : 'not-fronting');
+  card.dataset.memberId = member.id;
+  if (color) card.style.borderLeftColor = color;
+
+  // Avatar (decorative — name is in the adjacent text)
+  const avatarWrap = document.createElement('div');
+  avatarWrap.className = 'avatar-wrap';
+  avatarWrap.setAttribute('aria-hidden', 'true');
+  if (member.avatar_url) {
+    const img = document.createElement('img');
+    img.src = member.avatar_url;
+    img.alt = '';
+    img.className = 'avatar';
+    img.onerror = () => avatarWrap.replaceChildren(createAvatarPlaceholder(name, color));
+    avatarWrap.appendChild(img);
+  } else {
+    avatarWrap.appendChild(createAvatarPlaceholder(name, color));
+  }
+
+  // Info (name + pronouns/id)
+  const info = document.createElement('div');
+  info.className = 'member-info';
+  const nameEl = document.createElement('div');
+  nameEl.className = 'member-name';
+  nameEl.id = nameId;
+  nameEl.textContent = name;
+  if (textColor) nameEl.style.color = textColor;
+  const subEl = document.createElement('div');
+  subEl.className = 'member-sub';
+  subEl.id = subId;
+  subEl.textContent = member.pronouns || member.id;
+  info.appendChild(nameEl);
+  info.appendChild(subEl);
+
+  // Right side (settings gear + badge + fronting toggle)
+  const right = document.createElement('div');
+  right.className = 'card-right';
+
+  // Badge is visual-only; toggle button's aria-pressed communicates state to SR.
+  const badge = document.createElement('div');
+  badge.className = 'front-badge';
+  badge.setAttribute('aria-hidden', 'true');
+  badge.textContent = 'Fronting';
+
+  const settingsBtn = document.createElement('button');
+  settingsBtn.className = 'member-settings-btn';
+  settingsBtn.dataset.memberId = member.id;
+  if (hasMutedWebhooks(member.id)) settingsBtn.classList.add('has-mutes');
+  settingsBtn.setAttribute('aria-label', 'Webhook settings');
+  settingsBtn.setAttribute('aria-describedby', `${nameId} ${subId}`);
+  settingsBtn.setAttribute('aria-haspopup', 'dialog');
+  settingsBtn.textContent = '⚙';
+  settingsBtn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    openMemberSettingsModal(member.id, settingsBtn);
+  });
+
+  const toggleBtn = document.createElement('button');
+  toggleBtn.className = 'toggle-btn';
+  toggleBtn.setAttribute('aria-label', 'Toggle fronting');
+  toggleBtn.setAttribute('aria-describedby', `${nameId} ${subId}`);
+  toggleBtn.setAttribute('aria-pressed', isFronting ? 'true' : 'false');
+  toggleBtn.innerHTML = isFronting ? '−' : '+';
+  toggleBtn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    toggleFronting(member.uuid, toggleBtn);
+  });
+
+  right.appendChild(badge);
+  right.appendChild(settingsBtn);
+  right.appendChild(toggleBtn);
+  card.appendChild(avatarWrap);
+  card.appendChild(info);
+  card.appendChild(right);
+  return card;
+}
+
+/**
+ * Re-renders the member list, preserving the currently focused toggle button
+ * if it belongs to a member card. Called by background refresh and search.
+ *
+ * @param {string} query - Search filter text.
+ * @param {Object} [options]
+ * @param {boolean} [options.announceResults=true] - Whether to update the SR live region.
+ */
+function renderMembers(query = '', { announceResults = true } = {}) {
+  const focusedCard = document.activeElement?.closest?.('[data-member-id]');
+  const focusedMemberId = focusedCard?.dataset.memberId;
+  const focusedBtnClass = document.activeElement?.classList.contains('member-settings-btn')
+    ? '.member-settings-btn'
+    : '.toggle-btn';
+
+  const searchTerm = query.toLowerCase();
+  const filtered = searchTerm
+    ? members.filter(m => getMemberDisplayName(m).toLowerCase().includes(searchTerm))
+    : members;
+
+  // Build all cards into a fragment first to avoid repeated reflows.
+  const fragment = document.createDocumentFragment();
+
+  if (!filtered.length) {
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = 'No members found.';
+    fragment.appendChild(empty);
+    memberListEl.replaceChildren(fragment);
+    if (searchTerm && announceResults) {
+      searchResultsStatusEl.textContent = 'No members found.';
+    }
+    return;
+  }
+
+  const frontingNow = filtered.filter(m => fronters.has(m.uuid));
+  const notFronting = filtered.filter(m => !fronters.has(m.uuid));
+
+  if (frontingNow.length) {
+    const sectionLabel = document.createElement('h2');
+    sectionLabel.className = 'section-label';
+    sectionLabel.textContent = 'Fronting now';
+    fragment.appendChild(sectionLabel);
+
+    const list = document.createElement('ul');
+    list.setAttribute('role', 'list');
+    list.setAttribute('aria-label', 'Fronting now');
+    frontingNow.forEach(m => list.appendChild(createMemberCard(m)));
+    fragment.appendChild(list);
+  }
+
+  if (notFronting.length) {
+    const sectionLabel = document.createElement('h2');
+    sectionLabel.className = 'section-label';
+    sectionLabel.textContent = 'Not fronting';
+    fragment.appendChild(sectionLabel);
+
+    const list = document.createElement('ul');
+    list.setAttribute('role', 'list');
+    list.setAttribute('aria-label', 'Not fronting');
+    notFronting.forEach(m => list.appendChild(createMemberCard(m)));
+    fragment.appendChild(list);
+  }
+
+  memberListEl.replaceChildren(fragment);
+
+  if (focusedMemberId) {
+    const restoredCard = memberListEl.querySelector(`[data-member-id="${focusedMemberId}"]`);
+    if (restoredCard) {
+      const restoredBtn = restoredCard.querySelector(focusedBtnClass);
+      if (restoredBtn) restoredBtn.focus();
+    }
+  }
+
+  // Announce result count to SR when actively searching.
+  if (searchTerm && announceResults) {
+    searchResultsStatusEl.textContent = `${filtered.length} member${filtered.length === 1 ? '' : 's'} found.`;
+  } else if (announceResults) {
+    searchResultsStatusEl.textContent = '';
+  }
+}
+
+/* =========================================================================
+ *  FRONTING LOGIC
+ * ========================================================================= */
+
+async function toggleFronting(uuid, toggleBtn) {
+  toggleBtn.classList.add('loading');
+  const wasFronting = fronters.has(uuid);
+  try {
+    const newFronterIds = wasFronting
+      ? [...fronters].filter(id => id !== uuid)
+      : [...fronters, uuid];
+
+    await pkApiFetch('/systems/@me/switches', {
+      method: 'POST',
+      body: JSON.stringify({ members: newFronterIds }),
+    });
+
+    const member = members.find(m => m.uuid === uuid);
+    const memberName = member ? getMemberDisplayName(member) : uuid;
+    const memberAvatar = member?.avatar_url || null;
+    const isPrivate = member?.privacy?.visibility === 'private';
+
+    fronters = new Set(newFronterIds);
+    updateFrontingCount();
+    // renderMembers auto-restores focus to the same member's button.
+    renderMembers(searchInput.value);
+
+    showToast(wasFronting ? 'Removed from front' : 'Added to front', 'success');
+    sendWebhookNotifications(memberName, memberAvatar, wasFronting ? 'stop' : 'start', isPrivate, member?.id);
+  } catch (error) {
+    showToast('Error: ' + error.message, 'error');
+    toggleBtn.classList.remove('loading');
+  }
+}
+
+/* =========================================================================
+ *  APP LIFECYCLE
+ * ========================================================================= */
+
+async function loadApp() {
+  const [systemData, memberList, switchData] = await Promise.all([
+    pkApiFetch('/systems/@me'),
+    pkApiFetch('/systems/@me/members'),
+    pkApiFetch('/systems/@me/fronters').catch(() => null),
+  ]);
+
+  members = memberList.sort(compareMembersByName);
+  fronters = new Set(extractFronterUuids(switchData));
+
+  systemInfo = systemData;
+  if (systemData.avatar_url) setSystemAvatar(systemData.avatar_url);
+
+  localStorage.setItem(CACHE_KEYS.systemName, systemData.name || '');
+  if (systemData.avatar_url) {
+    localStorage.setItem(CACHE_KEYS.systemAvatarUrl, systemData.avatar_url);
+  } else {
+    localStorage.removeItem(CACHE_KEYS.systemAvatarUrl);
+  }
+
+  setupEl.style.display = 'none';
+  splashEl.style.display = 'none';
+  appEl.style.display = 'block';
+  statusBarEl.style.display = 'flex';
+  loadingEl.style.display = 'none';
+  systemNameEl.textContent = systemData.name || 'Unnamed System';
+  systemIdTagEl.textContent = systemData.id;
+  document.title = (systemData.name || 'PK Fronter') + ' · PK Fronter';
+
+  renderMembers();
+  updateFrontingCount();
+
+  // Announce to SR that loading is complete.
+  searchResultsStatusEl.textContent = `${members.length} member${members.length === 1 ? '' : 's'} loaded.`;
+
+  // Move focus to the search input so keyboard/SR users land in the right place.
+  // Use preventScroll to avoid jarring scroll jumps, and skip on touch devices
+  // to avoid forcing the on-screen keyboard open.
+  if (!('ontouchstart' in window)) {
+    searchInput.focus({ preventScroll: true });
+  }
+}
+
+async function refreshFronters() {
+  const switchData = await pkApiFetch('/systems/@me/fronters').catch((error) => {
+    console.warn('Failed to refresh fronters:', error);
+    return null;
+  });
+  if (!switchData) return;
+  fronters = new Set(extractFronterUuids(switchData));
+  updateFrontingCount();
+  renderMembers(searchInput.value, { announceResults: false });
+}
+
+async function refreshAll() {
+  if (isRefreshing) return;
+  isRefreshing = true;
+  try {
+    const [memberList, switchData] = await Promise.all([
+      pkApiFetch('/systems/@me/members'),
+      pkApiFetch('/systems/@me/fronters').catch(() => null),
+    ]);
+    members = memberList.sort(compareMembersByName);
+    fronters = new Set(extractFronterUuids(switchData));
+    updateFrontingCount();
+    renderMembers(searchInput.value, { announceResults: false });
+  } catch (error) {
+    console.warn('Failed to refresh all:', error);
+  } finally {
+    isRefreshing = false;
+  }
+}
+
+/* =========================================================================
+ *  WEBHOOK MANAGEMENT
+ * ========================================================================= */
+
+/** Close the webhook modal and return focus to the trigger button. */
+function closeWebhookModal() {
+  webhookOverlay.classList.remove('open');
+  webhookBtn.classList.remove('active');
+  webhookBtn.setAttribute('aria-expanded', 'false');
+  webhookBtn.focus();
+}
+
+function openMemberSettingsModal(memberId, triggerBtn) {
+  memberSettingsActiveMemberId = memberId;
+  memberSettingsTriggerBtn = triggerBtn;
+
+  const member = members.find(m => m.id === memberId);
+  const name = member ? getMemberDisplayName(member) : 'Member';
+  memberSettingsTitleEl.textContent = `Webhook Settings — ${name}`;
+
+  renderMemberSettingsList(memberId);
+  memberSettingsOverlay.classList.add('open');
+  memberSettingsCloseBtn.focus();
+}
+
+function closeMemberSettingsModal() {
+  memberSettingsOverlay.classList.remove('open');
+  memberSettingsActiveMemberId = null;
+  if (memberSettingsTriggerBtn) {
+    memberSettingsTriggerBtn.classList.toggle('has-mutes', hasMutedWebhooks(memberSettingsTriggerBtn.dataset.memberId));
+    memberSettingsTriggerBtn.focus();
+    memberSettingsTriggerBtn = null;
+  }
+}
+
+function renderMemberSettingsList(memberId) {
+  memberSettingsListEl.innerHTML = '';
+
+  const activeWebhooks = getActiveWebhooks();
+  if (!activeWebhooks.length) {
+    memberSettingsListEl.innerHTML = '<div class="webhook-empty">No active webhooks. Add webhooks from the Webhooks menu first.</div>';
+    return;
+  }
+
+  activeWebhooks.forEach((webhook, index) => {
+    const webhookLabel = webhook.label || `Webhook ${index + 1}`;
+    const isEnabled = isMemberWebhookEnabled(memberId, webhook.url);
+
+    const row = document.createElement('div');
+    row.className = 'member-webhook-row';
+
+    const label = document.createElement('span');
+    label.className = 'member-webhook-row-label';
+    label.textContent = webhookLabel;
+
+    const toggle = document.createElement('label');
+    toggle.className = 'switch-sm';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = isEnabled;
+    checkbox.setAttribute('aria-label', webhookLabel);
+
+    const track = document.createElement('div');
+    track.className = 'switch-sm-track';
+
+    checkbox.addEventListener('change', () => {
+      setMemberWebhookEnabled(memberId, webhook.url, checkbox.checked);
+    });
+
+    toggle.appendChild(checkbox);
+    toggle.appendChild(track);
+
+    row.appendChild(label);
+    row.appendChild(toggle);
+    memberSettingsListEl.appendChild(row);
+  });
+}
+
+function saveWebhooks() {
+  localStorage.setItem(STORAGE_KEYS.webhooks, JSON.stringify(webhooks));
+  localStorage.setItem(STORAGE_KEYS.webhooksEnabled, webhooksEnabled.toString());
+}
+
+function renderWebhookList() {
+  webhookListEl.innerHTML = '';
+  if (!webhooks.length) {
+    webhookListEl.innerHTML = '<div class="webhook-empty">No webhooks added yet.</div>';
+    return;
+  }
+  webhooks.forEach((webhook, index) => {
+    const row = document.createElement('div');
+    row.className = 'webhook-row';
+    const webhookName = escapeHtml(webhook.label) || `Webhook ${index + 1}`;
+    row.innerHTML = `
+      <label class="switch-sm" title="${webhook.enabled ? 'Enabled' : 'Disabled'}">
+        <input type="checkbox" class="webhook-toggle" data-index="${index}" ${webhook.enabled ? 'checked' : ''} aria-label="Enable ${webhookName}">
+        <div class="switch-sm-track"></div>
+      </label>
+      <input class="wh-label-input" value="${escapeHtml(webhook.label)}" placeholder="Name" maxlength="32" data-index="${index}" data-field="label" aria-label="Webhook ${index + 1} name">
+      <input class="wh-url-input" value="${escapeHtml(webhook.url)}" placeholder="https://discord.com/api/webhooks/…" data-index="${index}" data-field="url" aria-label="Webhook ${index + 1} URL">
+      <button class="wh-icon-btn del" data-index="${index}" title="Remove ${webhookName}" aria-label="Remove ${webhookName}">×</button>
+    `;
+
+    row.querySelectorAll('input[data-field]').forEach(input => {
+      input.addEventListener('change', (event) => {
+        const idx = parseInt(event.target.dataset.index, 10);
+        const field = event.target.dataset.field;
+        const newValue = event.target.value.trim();
+
+        if (field === 'url') {
+          const oldUrl = webhooks[idx].url;
+          if (oldUrl && oldUrl !== newValue) {
+            for (const settings of Object.values(memberWebhookSettings)) {
+              if (oldUrl in settings) {
+                settings[newValue] = settings[oldUrl];
+                delete settings[oldUrl];
+              }
+            }
+          }
+        }
+
+        webhooks[idx][field] = newValue;
+        saveWebhooks();
+        saveMemberWebhookSettings();
+      });
+    });
+
+    row.querySelector('.webhook-toggle').addEventListener('change', (event) => {
+      webhooks[parseInt(event.target.dataset.index, 10)].enabled = event.target.checked;
+      saveWebhooks();
+    });
+
+    row.querySelector('.del').addEventListener('click', (event) => {
+      const deletedIndex = parseInt(event.target.dataset.index, 10);
+      webhooks.splice(deletedIndex, 1);
+      saveWebhooks();
+      saveMemberWebhookSettings();
+      renderWebhookList();
+
+      // Restore focus after re-render: try the same index, then previous, then the add button.
+      if (webhooks.length) {
+        const focusIndex = Math.min(deletedIndex, webhooks.length - 1);
+        const targetRow = webhookListEl.children[focusIndex];
+        if (targetRow) {
+          const delBtn = targetRow.querySelector('.del');
+          if (delBtn) delBtn.focus();
+        }
+      } else {
+        newWebhookLabelInput.focus();
+      }
+    });
+
+    webhookListEl.appendChild(row);
+  });
+}
+
+async function sendWebhookNotifications(memberName, avatarUrl, action, isPrivate, memberId) {
+  if (!webhooksEnabled || !webhooks.length) return;
+  if (isPrivate) return;
+  if (!systemInfo) return;
+
+  const resolvedAvatar = avatarUrl || systemInfo.avatar_url || undefined;
+
+  const username = `${memberName} - ${systemInfo.name || 'System'}`.slice(0, DISCORD_USERNAME_MAX_LENGTH);
+  const actionLine = action === 'start'
+    ? `${memberName} has started fronting.`
+    : `${memberName} has stopped fronting.`;
+
+  for (const webhook of webhooks) {
+    if (!webhook.url || !webhook.enabled) continue;
+    if (memberId && !isMemberWebhookEnabled(memberId, webhook.url)) continue;
+
+    const visibleFronters = members
+      .filter(m => fronters.has(m.uuid))
+      .filter(m => m.privacy?.visibility !== 'private')
+      .filter(m => isMemberWebhookEnabled(m.id, webhook.url));
+    const fronterList = visibleFronters.length
+      ? visibleFronters.map(m => getMemberDisplayName(m)).join(', ')
+      : 'None';
+
+    fetch(webhook.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: `${actionLine}\nCurrent Fronters: ${fronterList}`,
+        username,
+        avatar_url: resolvedAvatar,
+      }),
+    }).catch(() => {});
+  }
+}
+
+/* =========================================================================
+ *  SETTINGS IMPORT / EXPORT
+ *  Encodes all localStorage settings as a base64 JSON string for transfer
+ *  between devices. Includes the API token, webhooks, per-member webhook
+ *  settings, and cached system info.
+ * ========================================================================= */
+
+async function compressToBase64(str) {
+  const stream = new Blob([str]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+  const buffer = await new Response(stream).arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+async function decompressFromBase64(base64) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+  return new Response(stream).text();
+}
+
+async function exportSettings() {
+  const payload = {};
+  for (const [key, storageKey] of Object.entries(STORAGE_KEYS)) {
+    const value = localStorage.getItem(storageKey);
+    if (value !== null) payload[storageKey] = value;
+  }
+  return compressToBase64(JSON.stringify(payload));
+}
+
+async function importSettings(code) {
+  const trimmed = code.trim();
+  if (!trimmed) throw new Error('No import code provided.');
+
+  let json;
+  try {
+    json = await decompressFromBase64(trimmed);
+  } catch (_) {
+    try {
+      json = decodeURIComponent(escape(atob(trimmed)));
+    } catch (_) {
+      throw new Error('Invalid import code — could not decode.');
+    }
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(json);
+  } catch (_) {
+    throw new Error('Invalid import code — not valid settings data.');
+  }
+
+  if (typeof payload !== 'object' || payload === null) {
+    throw new Error('Invalid import code — unexpected format.');
+  }
+
+  if (!payload[STORAGE_KEYS.token]) {
+    throw new Error('Import code does not contain a token.');
+  }
+
+  const recognizedKeys = new Set(Object.values(STORAGE_KEYS));
+  for (const [key, value] of Object.entries(payload)) {
+    if (recognizedKeys.has(key) && typeof value === 'string') {
+      localStorage.setItem(key, value);
+    }
+  }
+
+  return true;
+}
+
+/* =========================================================================
+ *  EVENT LISTENERS
+ * ========================================================================= */
+
+/* --- Setup / Auth --- */
+
+connectBtn.addEventListener('click', async () => {
+  const value = tokenInput.value.trim();
+  if (!value) {
+    setupErrEl.textContent = 'Please enter your PluralKit token.';
+    tokenInput.focus();
+    return;
+  }
+  apiToken = value;
+  connectBtn.textContent = 'Connecting…';
+  connectBtn.disabled = true;
+  connectBtn.setAttribute('aria-busy', 'true');
+  setupErrEl.textContent = '';
+  try {
+    await loadApp();
+    localStorage.setItem(STORAGE_KEYS.token, apiToken);
+  } catch (error) {
+    setupErrEl.textContent = 'Could not connect: ' + error.message;
+    apiToken = '';
+  } finally {
+    connectBtn.textContent = 'Connect';
+    connectBtn.disabled = false;
+    connectBtn.removeAttribute('aria-busy');
+  }
+});
+
+tokenInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') connectBtn.click();
+});
+
+logoutBtn.addEventListener('click', () => {
+  localStorage.removeItem(STORAGE_KEYS.token);
+  localStorage.removeItem(CACHE_KEYS.systemAvatarUrl);
+  localStorage.removeItem(CACHE_KEYS.systemName);
+  location.reload();
+});
+
+/* --- Import / Export --- */
+
+exportBtn.addEventListener('click', async () => {
+  try {
+    const code = await exportSettings();
+    navigator.clipboard.writeText(code).then(() => {
+      showToast('Export code copied to clipboard', 'success');
+    }).catch(() => {
+      window.prompt('Copy this export code:', code);
+    });
+  } catch (error) {
+    showToast('Export failed: ' + error.message, 'error');
+  }
+});
+
+importBtn.addEventListener('click', async () => {
+  const code = importInput.value.trim();
+  if (!code) {
+    showToast('Please paste an export code first.', 'error');
+    importInput.focus();
+    return;
+  }
+  try {
+    await importSettings(code);
+    showToast('Settings imported — reloading…', 'success');
+    setTimeout(() => location.reload(), 800);
+  } catch (error) {
+    showToast(error.message, 'error');
+  }
+});
+
+importInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') importBtn.click();
+});
+
+/* --- Search (debounced) --- */
+
+searchInput.addEventListener('input', debounce(() => {
+  renderMembers(searchInput.value);
+}, SEARCH_DEBOUNCE_MS));
+
+/* --- Webhook modal --- */
+
+webhookBtn.addEventListener('click', () => {
+  webhookEnabledCheckbox.checked = webhooksEnabled;
+  renderWebhookList();
+  webhookOverlay.classList.add('open');
+  webhookBtn.classList.add('active');
+  webhookBtn.setAttribute('aria-expanded', 'true');
+  // Move focus into the modal (first focusable element: the close button).
+  webhookCloseBtn.focus();
+});
+
+webhookCloseBtn.addEventListener('click', () => {
+  closeWebhookModal();
+});
+
+webhookOverlay.addEventListener('click', (event) => {
+  if (event.target === webhookOverlay) {
+    closeWebhookModal();
+  }
+});
+
+webhookEnabledCheckbox.addEventListener('change', (event) => {
+  webhooksEnabled = event.target.checked;
+  saveWebhooks();
+});
+
+newWebhookAddBtn.addEventListener('click', () => {
+  const label = newWebhookLabelInput.value.trim();
+  const url = newWebhookUrlInput.value.trim();
+  if (!url) return;
+  if (!isValidDiscordWebhookUrl(url)) {
+    showToast("That doesn't look like a Discord webhook URL", 'error');
+    return;
+  }
+  webhooks.push({ label: label || 'Webhook ' + (webhooks.length + 1), url, enabled: true });
+  saveWebhooks();
+  renderWebhookList();
+  newWebhookLabelInput.value = '';
+  newWebhookUrlInput.value = '';
+  showToast('Webhook added', 'success');
+
+  // Move focus to the just-added webhook's name input for verification.
+  const lastRow = webhookListEl.children[webhookListEl.children.length - 1];
+  if (lastRow) {
+    const nameInput = lastRow.querySelector('.wh-label-input');
+    if (nameInput) nameInput.focus();
+  }
+});
+
+newWebhookUrlInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') newWebhookAddBtn.click();
+});
+
+/* --- Member settings modal --- */
+
+memberSettingsCloseBtn.addEventListener('click', () => {
+  closeMemberSettingsModal();
+});
+
+memberSettingsOverlay.addEventListener('click', (event) => {
+  if (event.target === memberSettingsOverlay) {
+    closeMemberSettingsModal();
+  }
+});
+
+/* Focus trap + Escape for both overlay modals. */
+document.addEventListener('keydown', (event) => {
+  let activeOverlay = null;
+  let closeFn = null;
+  if (memberSettingsOverlay.classList.contains('open')) {
+    activeOverlay = memberSettingsOverlay;
+    closeFn = closeMemberSettingsModal;
+  } else if (webhookOverlay.classList.contains('open')) {
+    activeOverlay = webhookOverlay;
+    closeFn = closeWebhookModal;
+  }
+  if (!activeOverlay) return;
+
+  if (event.key === 'Escape') {
+    closeFn();
+    return;
+  }
+
+  if (event.key === 'Tab') {
+    const focusable = getFocusableElements(activeOverlay);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey) {
+      if (document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  }
+});
+
+/* --- Visibility & polling --- */
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && apiToken) {
+    refreshAll();
+  }
+});
+
+setInterval(() => {
+  if (document.visibilityState === 'visible' && apiToken) {
+    refreshFronters();
+  }
+}, POLLING_INTERVAL_MS);
+
+/* =========================================================================
+ *  BOOTSTRAP
+ * ========================================================================= */
+
+const savedToken = localStorage.getItem(STORAGE_KEYS.token);
+if (savedToken) {
+  apiToken = savedToken;
+
+  const cachedAvatar = localStorage.getItem(CACHE_KEYS.systemAvatarUrl);
+  const cachedName = localStorage.getItem(CACHE_KEYS.systemName);
+  const splashLogoEl = document.getElementById('splash-logo');
+  const splashTitleEl = document.getElementById('splash-title');
+
+  if (cachedAvatar && splashLogoEl) {
+    const img = document.createElement('img');
+    img.src = cachedAvatar;
+    img.alt = '';
+    img.onerror = () => { splashLogoEl.textContent = '🐙'; };
+    splashLogoEl.textContent = '';
+    splashLogoEl.appendChild(img);
+  }
+  if (cachedName && splashTitleEl) {
+    splashTitleEl.textContent = cachedName;
+  }
+
+  splashEl.style.display = 'flex';
+  loadApp().catch(() => {
+    localStorage.removeItem(STORAGE_KEYS.token);
+    apiToken = '';
+    splashEl.style.display = 'none';
+    setupEl.style.display = 'block';
+  });
+} else {
+  setupEl.style.display = 'block';
+}
+
+</script>
+</body>
+</html>
