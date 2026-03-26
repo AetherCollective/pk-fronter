@@ -1436,7 +1436,6 @@ function getFocusableElements(container) {
 
 function updateSleepBtn() {
   sleepBtn.textContent = webhooksEnabled ? '🔔' : '💤';
-  sleepBtn.style.opacity = webhooksEnabled ? '1' : '0.4';
   sleepBtn.setAttribute('aria-label', webhooksEnabled ? 'Snooze webhooks' : 'Enable webhooks');
   sleepBtn.title = webhooksEnabled ? 'Snooze webhooks' : 'Enable webhooks';
 }
@@ -2149,7 +2148,6 @@ importInput.addEventListener('keydown', (event) => {
 
 sleepBtn.addEventListener('click', () => {
   webhooksEnabled = !webhooksEnabled;
-  sleepBtn.style.opacity = webhooksEnabled ? '1' : '0.4';
   saveWebhooks();
   updateSleepBtn();
   // Keep the modal toggle in sync if it happens to be open.
