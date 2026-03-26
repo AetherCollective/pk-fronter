@@ -1044,6 +1044,7 @@
       <div class="subtitle" id="system-name">Loading…</div>
     </div>
     <div class="header-right">
+      <button class="header-btn" id="sleep-btn" aria-label="Toggle webhooks" title="Toggle webhooks">🔔</button>
       <button class="header-btn" id="export-btn" aria-label="Export settings">Export</button>
       <button class="webhook-btn" id="webhook-btn" aria-haspopup="dialog" aria-expanded="false">Webhooks</button>
     </div>
@@ -1250,6 +1251,7 @@ const newWebhookUrlInput = document.getElementById('new-wh-url');
 const newWebhookAddBtn = document.getElementById('new-wh-add');
 const searchResultsStatusEl = document.getElementById('search-results-status');
 const exportBtn = document.getElementById('export-btn');
+const sleepBtn = document.getElementById('sleep-btn');
 const importBtn = document.getElementById('import-btn');
 const importInput = document.getElementById('import-input');
 const memberSettingsOverlay = document.getElementById('member-settings-overlay');
@@ -1426,6 +1428,17 @@ function getFocusableElements(container) {
   return [...container.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   )].filter(el => !el.disabled && el.offsetParent !== null);
+}
+
+/* =========================================================================
+ *  SLEEP BUTTON HELPER
+ * ========================================================================= */
+
+function updateSleepBtn() {
+  sleepBtn.textContent = webhooksEnabled ? '🔔' : '💤';
+  sleepBtn.style.opacity = webhooksEnabled ? '1' : '0.4';
+  sleepBtn.setAttribute('aria-label', webhooksEnabled ? 'Snooze webhooks' : 'Enable webhooks');
+  sleepBtn.title = webhooksEnabled ? 'Snooze webhooks' : 'Enable webhooks';
 }
 
 /* =========================================================================
@@ -1746,6 +1759,7 @@ async function loadApp() {
 
   renderMembers();
   updateFrontingCount();
+  updateSleepBtn();
 
   // Announce to SR that loading is complete.
   searchResultsStatusEl.textContent = `${members.length} member${members.length === 1 ? '' : 's'} loaded.`;
@@ -2131,6 +2145,18 @@ importInput.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') importBtn.click();
 });
 
+/* --- Sleep button --- */
+
+sleepBtn.addEventListener('click', () => {
+  webhooksEnabled = !webhooksEnabled;
+  sleepBtn.style.opacity = webhooksEnabled ? '1' : '0.4';
+  saveWebhooks();
+  updateSleepBtn();
+  // Keep the modal toggle in sync if it happens to be open.
+  webhookEnabledCheckbox.checked = webhooksEnabled;
+  showToast(webhooksEnabled ? 'Webhooks Enabled' : 'Snoozed', webhooksEnabled ? 'success' : null);
+});
+
 /* --- Search (debounced) --- */
 
 searchInput.addEventListener('input', debounce(() => {
@@ -2162,6 +2188,7 @@ webhookOverlay.addEventListener('click', (event) => {
 webhookEnabledCheckbox.addEventListener('change', (event) => {
   webhooksEnabled = event.target.checked;
   saveWebhooks();
+  updateSleepBtn();
 });
 
 newWebhookAddBtn.addEventListener('click', () => {
