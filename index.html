@@ -2190,8 +2190,8 @@ newWebhookAddBtn.addEventListener('click', () => {
   const url = newWebhookUrlInput.value.trim();
   if (!url) return;
   if (!isValidDiscordWebhookUrl(url)) {
-    showToast("That doesn't look like a Discord webhook URL", 'error');
-    return;
+    showToast("That doesn't look like a Discord webhook URL, proceeding anyways...", 'warn');
+    // return;
   }
   webhooks.push({ label: label || 'Webhook ' + (webhooks.length + 1), url, enabled: true });
   saveWebhooks();
