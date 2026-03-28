@@ -17,12 +17,24 @@ export default async (request, context) => {
       const imgResponse = await fetch(payload.avatar_url);
       if (imgResponse.ok) {
         const buffer = await imgResponse.arrayBuffer();
-        const bytes = new Uint8Array(buffer);
-        let binary = '';
-        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-        payload.avatar_base64 = btoa(binary);
+        const blob = new Blob([buffer]);
+        const bitmap = await createImageBitmap(blob);
+
+        const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(bitmap, 0, 0);
+
+        const jpegBlob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.85 });
+        const jpegBuffer = await jpegBlob.arrayBuffer();
+        const bytes = new Uint8Array(jpegBuffer);
+        payload.avatar_base64 = btoa(String.fromCharCode(...bytes));
+        payload.avatar_base64_type = 'image/jpeg';
+      } else {
+        console.error('Avatar fetch failed:', imgResponse.status);
       }
-    } catch (_) {}
+    } catch (e) {
+      console.error('Avatar conversion error:', e.message);
+    }
   }
 
   const response = await fetch(target, {
