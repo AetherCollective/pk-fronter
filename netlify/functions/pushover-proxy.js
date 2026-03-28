@@ -18,7 +18,9 @@ export default async (request, context) => {
       if (imgResponse.ok) {
         const buffer = await imgResponse.arrayBuffer();
         const bytes = new Uint8Array(buffer);
-        payload.avatar_base64 = btoa(String.fromCharCode(...bytes));
+        let binary = '';
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        payload.avatar_base64 = btoa(binary);
       } else {
         console.error('Avatar fetch failed:', imgResponse.status);
       }
