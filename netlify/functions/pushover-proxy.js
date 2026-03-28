@@ -12,6 +12,11 @@ export default async (request, context) => {
 
   const payload = await request.json();
 
+  if (payload.username) {
+    const parts = payload.username.split(' - ');
+    payload.system_name = parts.length > 1 ? parts[parts.length - 1] : payload.username;
+  }
+
   if (payload.avatar_url) {
     try {
       const imgResponse = await fetch(payload.avatar_url);
