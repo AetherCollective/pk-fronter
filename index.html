@@ -1322,6 +1322,10 @@ function extractFronterUuids(switchData) {
 }
 
 /** Returns true if the given URL matches a known Discord webhook endpoint. */
+function isPushoverWebhookUrl(url) {
+  return url.startsWith('https://api.pushover.net/1/webhooks/');
+}
+
 function isValidDiscordWebhookUrl(url) {
   return DISCORD_WEBHOOK_PREFIXES.some(prefix => url.startsWith(prefix));
 }
@@ -1978,14 +1982,20 @@ async function sendWebhookNotifications(memberName, avatarUrl, action, isPrivate
       ? visibleFronters.map(m => getMemberDisplayName(m)).join(', ')
       : 'None';
 
-    fetch(webhook.url, {
+    const payload = {
+      content: `${actionLine}\nCurrent Fronters: ${fronterList}`,
+      username,
+      avatar_url: resolvedAvatar,
+    };
+
+    const fetchUrl = isPushoverWebhookUrl(webhook.url)
+      ? `/.netlify/functions/pushover-proxy?target=${encodeURIComponent(webhook.url)}`
+      : webhook.url;
+
+    fetch(fetchUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        content: `${actionLine}\nCurrent Fronters: ${fronterList}`,
-        username,
-        avatar_url: resolvedAvatar,
-      }),
+      body: JSON.stringify(payload),
     }).catch(() => {});
   }
 }
