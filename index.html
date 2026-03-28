@@ -1989,7 +1989,7 @@ async function sendWebhookNotifications(memberName, avatarUrl, action, isPrivate
     };
 
     const fetchUrl = isPushoverWebhookUrl(webhook.url)
-      ? `/.netlify/functions/pushover-proxy?target=${encodeURIComponent(webhook.url)}`
+      ? `/pushover-proxy?target=${encodeURIComponent(webhook.url)}`
       : webhook.url;
 
     fetch(fetchUrl, {
